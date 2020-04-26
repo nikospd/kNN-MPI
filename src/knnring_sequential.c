@@ -74,30 +74,30 @@ void kNNPoints(int* nidxPoint, double* ndistPoint, double* allDistances, int* di
 }
 
 knnresult kNN(double *X, double *Y, int n, int m, int d, int k){
-  int* nidx = malloc(m*k*sizeof(int));
-  double* ndist = malloc(m*k*sizeof(double));
-  double* allDistances = malloc(n*sizeof(double));//The distances for each point of the query set, with every point of the corpus set
+	int* nidx = malloc(m*k*sizeof(int));
+	double* ndist = malloc(m*k*sizeof(double));
+	double* allDistances = malloc(n*sizeof(double));//The distances for each point of the query set, with every point of the corpus set
 	int* distancesFirstIndex = malloc(n*sizeof(int));
-
+	int* nidxPoint = malloc(k*sizeof(int));
+	double* ndistPoint = malloc(k*sizeof(double));
 	for(int i=0;i<m;i++){
-    int* nidxPoint = malloc(k*sizeof(int));
-    double* ndistPoint = malloc(k*sizeof(double));
-    queryPointDistances(allDistances, &Y[i*d], X, d, n);
-		printBalk(allDistances, n, 1);
+		
+		queryPointDistances(allDistances, &Y[i*d], X, d, n);
+		// printBalk(allDistances, n, 1);
 		for(int z=0;z<n;z++){
 			distancesFirstIndex[z] = z;
 		}
-    kNNPoints(nidxPoint, ndistPoint, allDistances, distancesFirstIndex, n, k);
+		kNNPoints(nidxPoint, ndistPoint, allDistances, distancesFirstIndex, n, k);
 
-    for(int j=0;j<k;j++){
-      nidx[i*k+j] = nidxPoint[j];
-      ndist[i*k+j] = ndistPoint[j];
-    }
+		for(int j=0;j<k;j++){
+			nidx[i*k+j] = nidxPoint[j];
+			ndist[i*k+j] = ndistPoint[j];
+		}
 
-    free(nidxPoint);
-    free(ndistPoint);
-  }
-
+		
+  	}
+	free(nidxPoint);
+	free(ndistPoint);
 
   knnresult node = {.nidx = nidx, .ndist = ndist, .m = m, .k = k};
 	free(allDistances);
@@ -108,34 +108,4 @@ knnresult kNN(double *X, double *Y, int n, int m, int d, int k){
 double drand ( double low, double high )
 {
     return ( (double)rand() * ( high - low ) ) / (double)RAND_MAX + low;
-}
-
-
-
-int main(){
-	int n=5, m=3, d=2, k=3;
-	double* X = malloc(n*d*sizeof(double));
-	double* Y = malloc(m*d*sizeof(double));
-	for(int i=0;i<n;i++){
-		for(int j=0;j<d;j++){
-			X[d*i+j] = drand(1,100);
-		}
-	}
-	for(int i=0;i<m;i++){
-		for(int j=0;j<d;j++){
-			Y[d*i+j] = drand(1,100);
-		}
-	}
-
-	printBalk(X, n, d);
-	printBalk(Y, m, d);
-
-
-	knnresult result = kNN(X, Y, n, m, d, k);
-	printBalk(result.ndist, m, k);
-	printBalkInt(result.nidx, m, k);
-	free(result.ndist);
-	free(result.nidx);
-	free(X);
-	free(Y);
 }
